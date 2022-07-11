@@ -11,7 +11,7 @@ GREEN = (0,255,0)
 RED = (255,0,0)
 
 BACKGROUND = WHITE
-HAZARDOUS_REGIONS_XY = [ (400, 400), (300, 150), (250, 300), (300, 450) ]
+HAZARDOUS_REGIONS_XY = [(400,400), (900,900)]#[ (400, 400), (500,300), (800, 750), (125, 473), (957, 671)]
 #HAZARDOUS_REGIONS_XY = [(100,100)]
 
 class Agent(pygame.sprite.Sprite):
@@ -50,7 +50,7 @@ class Agent(pygame.sprite.Sprite):
         self.norm_BRN_list = []
         self.energy_list = []
         self.x_val = 0
-        self.current_BRN_val = 0 #random.randint(0,100)
+        self.current_BRN_val = 100 #random.randint(0,100)
         #print(self.current_BRN_val)
         self.m = 0#+random_floats(-9.99, 9.99, 2)
         self.c = 0#random_floats(-9.99, 9.99, 2)
@@ -79,9 +79,7 @@ class Agent(pygame.sprite.Sprite):
         closest_hazard_coord = closest_hazard.rect.x, closest_hazard.rect.y
         return dist
     
-    def collide_hazard(self):
-            if pygame.sprite.spritecollideany(self, hazardous_region_container):
-                self.collision = True 
+   
 
     
 
@@ -96,10 +94,10 @@ class Agent(pygame.sprite.Sprite):
             self.kill()
     
     def in_hazardous_region(self):
-        '''checks whether an agent is within the hazardous region by looking at the x and y ranges'''
-        for i,j in HAZARDOUS_REGIONS_XY:
-            if((i <= self.pos[0] <= i+50) and (j <= self.pos[1] <= j+50)):
-                self.in_danger = True
+        for i in HAZARDOUS_REGIONS_XY:
+            if(i[0] <= self.pos[0] <= i[0]+100):
+                if(i[1] <= self.pos[1] <= i[1]+100):
+                    self.in_danger = True
             else:
                 self.in_danger = False
     
@@ -148,9 +146,9 @@ class Agent(pygame.sprite.Sprite):
         for i,j in HAZARDOUS_REGIONS_XY:
             if not self.in_danger:
                 if self.current_BRN_val < probability() and ((i-25<= x <= i+75) and (j-25 <= y <= j+75)):
-                    self.vel[0] = -self.vel[0]
+                    self.vel= -self.vel
                     avoiding = True
-                    print('AVOIDING')
+                    #print('AVOIDING')
             
                 elif self.current_BRN_val >= probability():
                     pass
@@ -179,7 +177,7 @@ class Agent(pygame.sprite.Sprite):
                 self.eaten = True
                 self.energy +=5
                 self.food_list.append(1)
-                print('EATEN')
+                #print('EATEN')
         '''normalises the velocity if it goes over a certain threshold'''
         vel_norm = np.linalg.norm(self.vel)
         if vel_norm > 5:
@@ -192,7 +190,8 @@ class Agent(pygame.sprite.Sprite):
 
         if self.in_danger:
             self.energy -= 3
-            print('IN DANGER')
+            print(self.steps_taken,':IN DANGER')
+        
        
         '''BRN method and updating of food and energy lists'''
         self.energy_list.append(self.energy)
@@ -210,9 +209,10 @@ class Agent(pygame.sprite.Sprite):
         #    self.norm_BRN_list.append(self.current_BRN_val)
         #    print(self.moving_average_list)
         
-      #  self.steps_taken += 1
+        self.steps_taken += 1
         #print(self.current_BRN_val)
         self.pos += self.vel 
+        
 
 
 
@@ -304,7 +304,7 @@ screen = pygame.display.set_mode(
 
 agent_container = pygame.sprite.Group()
 
-for i in range(10):
+for i in range(100):
     x = np.random.randint(0,WIDTH+1)
     y = np.random.randint(0, HEIGHT+1)
     vel = np.random.rand(2) * 2 -1
@@ -324,7 +324,7 @@ hazardous_region_container = pygame.sprite.Group()
 for i,j in HAZARDOUS_REGIONS_XY:
     x = i
     y = j
-    hazard = Hazardous_Regions(x,y, 50, 50)
+    hazard = Hazardous_Regions(x,y, 100, 100)
     hazardous_region_container.add(hazard)
 
 
